@@ -1,0 +1,33 @@
+name: Main
+
+on:
+   pull_request:
+   push:
+      branches: [ "main" ]
+
+jobs:
+   check:
+      name: Check Code
+      runs-on: ubuntu-latest
+
+      steps:
+         -  name: Checkout Repository
+            uses: actions/checkout@v4
+
+         -  name: Set up Python
+            uses: actions/setup-python@v5
+            with:
+               python-version: "3.12"
+               cache: "pip"
+
+         -  name: Install Dependencies
+            run: pip install -r requirements.txt
+
+         -  name: Run MyPy
+            run: mypy pymonx
+
+         -  name: Run Ruff Linter
+            run: ruff check
+
+         -  name: Run Ruff Format Check
+            run: ruff format --check

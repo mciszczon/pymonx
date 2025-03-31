@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="flex flex-col items-center justify-center h-screen">
+   <h1 class="text-3xl mb-8">Pymonx</h1>
+   <div class="card bg-base-200 w-full max-w-md">
+      <div class="card-body">
+         <h2 class="card-title">Log in</h2>
+         {% if form.non_field_errors %}
+         <div role="alert" class="alert alert-error alert-soft">
+            <span>{{ form.non_field_errors }}</span>
+         </div>
+         {% endif %}
+         <form id="login" method="post" class="flex flex-col gap-4 my-4">
+            {% csrf_token %}
+            <div class="flex flex-col gap-1">
+               <label class="input w-full">
+                  Username
+                  <input name="{{ form.username.name }}" type="text" class="grow"/>
+               </label>
+               {% if form.username.errors %}
+               <strong class="text-error">{{ form.username.errors }}</strong>
+               {% endif %}
+            </div>
+            <div class="flex flex-col gap-1">
+               <label class="input w-full">
+                  Password
+                  <input name="{{ form.password.name }}" type="password" class="grow"/>
+               </label>
+               {% if form.password.errors %}
+               <strong class="text-error">{{ form.password.errors }}</strong>
+               {% endif %}
+            </div>
+         </form>
+         <div class="card-actions justify-center">
+            <button class="btn btn-primary" type="submit" form="login">Login</button>
+         </div>
+      </div>
+   </div>
+</div>
+{% endblock content %}

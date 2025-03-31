@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block head %}
+<header class="navbar bg-primary text-primary-content shadow-sm">
+  <h1 class="flex-1">
+    <a class="btn btn-ghost text-xl" href="{% url 'monitor:index' %}">Pymonx</a>
+  </h1>
+  <nav class="flex-none">
+    <ul class="menu menu-horizontal px-1">
+      <li><a href="{% url 'monitor:index' %}">Processes</a></li>
+      <li><a href="{% url 'monitor:index' %}">Snapshots</a></li>
+      <li><a href="{% url 'monitor:index' %}">Kill Log</a></li>
+      <li><a href="{% url 'landing:logout' %}">Logout</a></li>
+    </ul>
+  </nav>
+</header>
+{% endblock %}
+
+
+{% block content %}
+{% endblock content %}
+
+{% block foot %}
+<footer class="py-8 bg-base-300">
+   <div class="px-4">
+      <p class="text-center text-xs text-base-content opacity-50">
+         fi•aptiv 2025
+      </p>
+   </div>
+</footer>
+{% endblock %}

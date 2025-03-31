@@ -11,10 +11,18 @@
 </head>
 
 <body>
-   {% block content %}
-      <section class="flex items-center justify-center h-screen">
-         <h1 class="text-5xl">Pymonx️</h1>
-      </section>
-   {% endblock content %}
+   {% block head %}
+   {% endblock %}
+   <main class="py-8">
+      <div class="px-4">
+         {% block content %}
+         <section class="flex items-center justify-center h-screen">
+            <h1 class="text-5xl">Pymonx️</h1>
+         </section>
+         {% endblock content %}
+         </div>
+   </main>
+   {% block foot %}
+   {% endblock foot %}
 </body>
 </html>

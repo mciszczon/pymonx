@@ -1,0 +1,43 @@
+{% extends "monitor/base.html" %}
+{% load monitor_extras %}
+
+{% block content %}
+
+<div class="flex w-full items-center justify-between gap-4">
+   <span>
+      Refreshed: xx
+   </span>
+   <button class="btn btn-primary">Take Snapshot</button>
+</div>
+
+<table class="mt-8 table table-zebra table-pin-rows">
+   <thead>
+   <tr>
+      <th>PID</th>
+      <th>Process</th>
+      <th>User</th>
+      <th>Status</th>
+      <th>Duration</th>
+      <th>CPU %</th>
+      <th>Memory</th>
+      <th></th>
+   </tr>
+   </thead>
+   <tbody>
+   {% for process in processes %}
+   <tr class="hover:bg-base-200">
+      <th>{{ process.pid }}</th>
+      <th>{{ process.name }}</th>
+      <td>{{ process.user }}</td>
+      <td>{{ process.status }}</td>
+      <td>{% time_since process.start_time %}</td>
+      <td>{{ process.cpu|default:"N/A" }}</td>
+      <td>{{ process.memory|default:"N/A" }} MiB</td>
+      <td>
+         <button class="btn btn-sm" type="submit" data-pid="{{ process.pid }}">Kill</button>
+      </td>
+   </tr>
+   {% endfor %}
+   </tbody>
+</table>
+{% endblock content %}

@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_browser_reload",
+    "django_extensions",
     "tailwind",
     "theme",
 ]
@@ -121,3 +122,7 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+LOGIN_URL = "landing:index"
+LOGIN_REDIRECT_URL = "monitor:index"
+LOGOUT_REDIRECT_URL = "landing:index"

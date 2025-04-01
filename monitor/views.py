@@ -58,7 +58,9 @@ def kill(request: HtmxHttpRequest):
     except Exception as e:
         logger.error(f"Error killing process: {str(e)}")
 
-    return render(request, "monitor/kill_notification.html", {"kill_request": None})
+    return render(
+        request, "monitor/kill_notification.html", {"kill_request": None}, status=500
+    )
 
 
 @login_required

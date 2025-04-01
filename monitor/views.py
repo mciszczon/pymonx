@@ -28,7 +28,7 @@ def index(request: HtmxHttpRequest):
         {
             "processes": sorted(
                 get_processes(search, status),
-                key=lambda p: p["start_time"],
+                key=lambda p: p.start_time,
                 reverse=True,
             )
         },

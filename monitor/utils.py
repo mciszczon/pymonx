@@ -1,5 +1,8 @@
 import psutil
 from datetime import datetime
+from dacite import from_dict
+
+from monitor.models import ProcessData
 
 
 def bytes_to_mib(bytes_size: int) -> float:
@@ -48,7 +51,7 @@ def filter_process(process: psutil.Process, search: str, status: str) -> bool:
 
 
 def get_processes(search: str, status: str):
-    processes = []
+    processes: list[ProcessData] = []
 
     for process in psutil.process_iter(
         [
@@ -65,19 +68,22 @@ def get_processes(search: str, status: str):
             continue
         try:
             processes.append(
-                {
-                    "pid": process.info["pid"],
-                    "name": process.info["name"],
-                    "user": process.info["username"] or "unknown",
-                    "status": process.info["status"],
-                    "start_time": process.info["create_time"],
-                    "cpu": process.info["cpu_percent"],
-                    "memory": "{:.2f}".format(
-                        bytes_to_mib(process.info["memory_info"].rss)
-                    )
-                    if process.info["memory_info"]
-                    else None,
-                }
+                from_dict(
+                    data_class=ProcessData,
+                    data={
+                        "pid": process.info["pid"],
+                        "name": process.info["name"],
+                        "user": process.info["username"] or "unknown",
+                        "status": process.info["status"],
+                        "start_time": process.info["create_time"],
+                        "cpu": process.info["cpu_percent"],
+                        "memory": "{:.2f}".format(
+                            bytes_to_mib(process.info["memory_info"].rss)
+                        )
+                        if process.info["memory_info"]
+                        else None,
+                    },
+                )
             )
 
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):

@@ -11,6 +11,7 @@
          <button
             id="refresh-button"
             class="btn btn-outline"
+            hx-get="{% url 'monitor:index' %}"
             hx-vals="js:{ search: Alpine.store('filters').search, status: Alpine.store('filters').status }"
             hx-swap="outerHTML"
             hx-target="#process-table"

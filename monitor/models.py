@@ -1,5 +1,18 @@
+from dataclasses import dataclass
+
 from django.conf import settings
 from django.db import models
+
+
+@dataclass(frozen=True)
+class ProcessData:
+    pid: int
+    name: str
+    user: str
+    status: str
+    start_time: float
+    cpu: float | None
+    memory: str | None
 
 
 class KillRequest(models.Model):

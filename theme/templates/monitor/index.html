@@ -1,46 +1,61 @@
 {% extends "monitor/base.html" %}
 {% load monitor_extras %}
+{% load partials %}
 
 {% block content %}
 
-<div class="flex w-full items-center justify-between gap-4">
-   <span>
-      Refreshed: xx
-   </span>
-   <button class="btn btn-primary">Take Snapshot</button>
+<div class="flex w-full items-center gap-4">
+   <ul class="flex items-center gap-2">
+      <button
+         id="refresh-button"
+         class="btn btn-outline"
+         hx-get="{% url 'monitor:index' %}"
+         hx-swap="outerHTML"
+         hx-target="#process-table"
+         hx-trigger="click from:#refresh-button, every 5s"
+      >
+         Refresh
+      </button>
+      <button class="btn btn-primary">Take Snapshot</button>
+   </ul>
 </div>
 
 <div x-data="{ showModal: false, process: null }">
-   <table class="mt-8 table table-zebra table-pin-rows">
-      <thead>
-      <tr>
-         <th>PID</th>
-         <th>Process</th>
-         <th>User</th>
-         <th>Status</th>
-         <th>Duration</th>
-         <th>CPU %</th>
-         <th>Memory</th>
-         <th></th>
-      </tr>
-      </thead>
-      <tbody>
-      {% for process in processes %}
-      <tr class="hover:bg-base-200">
-         <th>{{ process.pid }}</th>
-         <th>{{ process.name }}</th>
-         <td>{{ process.user }}</td>
-         <td>{{ process.status }}</td>
-         <td>{% time_since process.start_time %}</td>
-         <td>{{ process.cpu|default:"N/A" }}</td>
-         <td>{{ process.memory|default:"N/A" }} MiB</td>
-         <td>
-            <button class="btn btn-sm" type="submit" @click="process = {{ process }}; showModal = true">Kill</button>
-         </td>
-      </tr>
-      {% endfor %}
-      </tbody>
-   </table>
+   {% partialdef process-table inline %}
+   <div id="process-table" class="mt-8 overflow-x-auto">
+      <span>
+         Refreshed: {% now "jS F Y H:i:s" %}
+      </span>
+      <table class="mt-8 table table-zebra table-pin-rows">
+         <thead>
+         <tr>
+            <th class="w-[80px]">PID</th>
+            <th>Process</th>
+            <th class="w-[120px]">Status</th>
+            <th class="w-[150px]">Duration</th>
+            <th class="w-[100px]">CPU</th>
+            <th class="w-[140px]">Memory</th>
+            <th class="w=[80px]"></th>
+         </tr>
+         </thead>
+         <tbody>
+         {% for process in processes %}
+         <tr class="hover:bg-base-200">
+            <th>{{ process.pid }}</th>
+            <th>{{ process.name }}</th>
+            <td>{% include "monitor/includes/status.html" with status=process.status %}</td>
+            <td>{% time_since process.start_time %}</td>
+            <td>{% include "monitor/includes/cpu.html" with cpu=process.cpu %}</td>
+            <td>{% include "monitor/includes/memory.html" with memory=process.memory %}</td>
+            <td class="text-right">
+               <button class="btn btn-sm" type="submit" @click="process = {{ process }}; showModal = true">Kill</button>
+            </td>
+         </tr>
+         {% endfor %}
+         </tbody>
+      </table>
+   </div>
+   {% endpartialdef %}
 
    <div class="modal" :class="{ 'modal-open': showModal }">
       <div class="modal-box">

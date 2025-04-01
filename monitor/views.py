@@ -6,13 +6,14 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
 from monitor.utils import bytes_to_mib
+from pymonx.utils import HtmxHttpRequest
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
 
 @login_required
-def index(request):
+def index(request: HtmxHttpRequest):
     processes = []
 
     for process in psutil.process_iter(
@@ -28,6 +29,8 @@ def index(request):
     ):
         if process.info["pid"] == 0:
             continue
+        if process.info["username"] == "root":
+            continue
         try:
             processes.append(
                 {
@@ -37,13 +40,19 @@ def index(request):
                     "status": process.info["status"],
                     "start_time": process.info["create_time"],
                     "cpu": process.info["cpu_percent"],
-                    "memory": bytes_to_mib(process.info["memory_info"].rss)
+                    "memory": "{:.2f}".format(
+                        bytes_to_mib(process.info["memory_info"].rss)
+                    )
                     if process.info["memory_info"]
-                    else "N/A",
+                    else None,
                 }
             )
 
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
 
-    return render(request, "monitor/index.html", {"processes": reversed(processes)})
+    template_name = "monitor/index.html"
+    if request.htmx:
+        template_name += "#process-table"
+
+    return render(request, template_name, {"processes": reversed(processes)})

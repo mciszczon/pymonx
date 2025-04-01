@@ -31,3 +31,6 @@ jobs:
 
          -  name: Run Ruff Format Check
             run: ruff format --check
+
+         -  name: Run Tests
+            run: python manage.py test

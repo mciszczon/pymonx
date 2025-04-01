@@ -4,55 +4,56 @@
 
 {% block content %}
 
-<div class="flex w-full items-center gap-4">
-   <ul class="flex items-center gap-2">
-      <button
-         id="refresh-button"
-         class="btn btn-outline"
-         hx-get="{% url 'monitor:index' %}"
-         hx-swap="outerHTML"
-         hx-target="#process-table"
-         hx-trigger="click from:#refresh-button, every 30s"
-      >
-         Refresh
-      </button>
-      <button class="btn btn-primary">Take Snapshot</button>
+<div class="flex flex-col lg:flex-row w-full lg:items-center justify-between gap-4">
+   {% include "monitor/includes/filters.html" %}
+   <ul class="flex items-center gap-2 order-first lg:order-last">
+      <li>
+         <button
+            id="refresh-button"
+            class="btn btn-outline"
+            hx-get="{% url 'monitor:index' %}"
+            hx-vals="js:{ search: Alpine.store('filters').search, status: Alpine.store('filters').status }"
+            hx-swap="outerHTML"
+            hx-target="#process-table"
+            hx-trigger="click from:#refresh-button, every 30s"
+         >
+            Refresh
+         </button>
+      </li>
+      <li>
+         <button class="btn btn-primary">Take Snapshot</button>
+      </li>
    </ul>
 </div>
 
 <div
    x-data="{
       showModal: false,
-      process: null,
 
       init() {
-        Alpine.store('process', this.process);
+        Alpine.store('process', {});
       }
    }"
 >
    <div class="card mt-8 bg-base-200">
       <div class="card-body px-0">
          {% partialdef process-table inline %}
-         <div id="process-table" class="overflow-x-auto">
+         <div id="process-table" class="overflow-x-auto mt-4">
             <h2 class="card-title px-4">Processes</h2>
             <span class="text-xs px-4 text-base-content">
                Refreshed: {% now "jS F Y H:i:s" %}
             </span>
             <table class="mt-8 table table-pin-rows">
                <thead>
-               <tr>
-                  <th
-                     class="w-[80px]"
-                  >
-                     PID
-                  </th>
-                  <th>Process</th>
-                  <th class="w-[120px]">Status</th>
-                  <th class="w-[150px]">Duration</th>
-                  <th class="w-[100px]">CPU</th>
-                  <th class="w-[140px]">Memory</th>
-                  <th class="w=[80px]"></th>
-               </tr>
+                  <tr>
+                     <th class="min-w-[80px]">PID</th>
+                     <th class="w-full">Process</th>
+                     <th class="min-w-[120px]">Status</th>
+                     <th class="min-w-[150px]">Duration</th>
+                     <th class="min-w-[100px]">CPU</th>
+                     <th class="min-w-[140px]">Memory</th>
+                     <th class="min-w=[80px]"></th>
+                  </tr>
                </thead>
                <tbody>
                {% for process in processes %}
@@ -64,8 +65,10 @@
                   <td>{% include "monitor/includes/cpu.html" with cpu=process.cpu %}</td>
                   <td>{% include "monitor/includes/memory.html" with memory=process.memory %}</td>
                   <td class="text-right">
-                     <button class="btn btn-sm btn-primary" type="submit"
-                             @click="process = { pid: {{ process.pid }}, name: '{{ process.name }}' }; showModal = true; $store.process = process">
+                     <button
+                        class="btn btn-sm btn-primary" type="submit"
+                        @click="showModal = true; $store.process = { pid: {{ process.pid }}, name: '{{ process.name }}' }"
+                     >
                         Kill
                      </button>
                   </td>
@@ -82,8 +85,8 @@
       <div class="modal-box">
          <h2 class="text-lg font-bold">Confirm Kill</h2>
          <p class="mt-2">
-            Are you sure you want to kill <span class="font-bold" x-text="process?.name"></span>
-            <sub>(PID: <span x-text="process?.pid"></span>)</sub>?
+            Are you sure you want to kill <span class="font-bold" x-text="$store.process?.name"></span>
+            <sub>(PID: <span x-text="$store.process?.pid"></span>)</sub>?
          </p>
          <div class="mt-4 flex justify-end space-x-2">
             <button class="btn btn-outline" @click="showModal = false">Cancel</button>

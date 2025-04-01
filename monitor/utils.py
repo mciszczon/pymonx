@@ -1,12 +1,15 @@
 import psutil
 from datetime import datetime
+from dacite import from_dict
+
+from monitor.models import ProcessData
 
 
 def bytes_to_mib(bytes_size: int) -> float:
     return bytes_size / (1024**2)
 
 
-def time_since(timestamp: int) -> str:
+def time_since(timestamp: float) -> str:
     now = datetime.now()
     delta = now - datetime.fromtimestamp(timestamp)
 
@@ -28,8 +31,24 @@ def time_since(timestamp: int) -> str:
     return " ".join(parts)
 
 
-def get_processes():
-    processes = []
+def filter_process(process: ProcessData, search: str, status: str) -> bool:
+    if process.pid == 0:
+        return False
+    if process.user == "root":
+        return False
+    if search and (
+        not process.name.lower().startswith(search.lower())
+        and not str(process.pid).startswith(search.lower())
+    ):
+        return False
+    if status and status.lower() != process.status:
+        return False
+
+    return True
+
+
+def get_processes(search: str, status: str):
+    processes: list[ProcessData] = []
 
     for process in psutil.process_iter(
         [
@@ -42,27 +61,24 @@ def get_processes():
             "memory_info",
         ]
     ):
-        if process.info["pid"] == 0:
-            continue
-        if process.info["username"] == "root":
+        process_data = from_dict(
+            data_class=ProcessData,
+            data={
+                "pid": process.info["pid"],
+                "name": process.info["name"],
+                "user": process.info["username"] or "unknown",
+                "status": process.info["status"],
+                "start_time": process.info["create_time"],
+                "cpu": process.info["cpu_percent"],
+                "memory": "{:.2f}".format(bytes_to_mib(process.info["memory_info"].rss))
+                if process.info["memory_info"]
+                else None,
+            },
+        )
+        if not filter_process(process_data, search, status):
             continue
         try:
-            processes.append(
-                {
-                    "pid": process.info["pid"],
-                    "name": process.info["name"],
-                    "user": process.info["username"] or "unknown",
-                    "status": process.info["status"],
-                    "start_time": process.info["create_time"],
-                    "cpu": process.info["cpu_percent"],
-                    "memory": "{:.2f}".format(
-                        bytes_to_mib(process.info["memory_info"].rss)
-                    )
-                    if process.info["memory_info"]
-                    else None,
-                }
-            )
-
+            processes.append(process_data)
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
 

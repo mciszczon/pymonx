@@ -15,11 +15,8 @@ logger = logging.getLogger(__name__)
 @login_required
 @require_GET
 def index(request: HtmxHttpRequest):
-    sort_query = request.GET.get("sort", "start_time")
-    sort_reverse, sort_param_name = (
-        sort_query.startswith("-"),
-        (sort_query[1:] if sort_query.startswith("-") else sort_query),
-    )
+    search = request.GET.get("search", "")
+    status = request.GET.get("status", "")
 
     template_name = "monitor/index.html"
     if request.htmx:
@@ -30,7 +27,9 @@ def index(request: HtmxHttpRequest):
         template_name,
         {
             "processes": sorted(
-                get_processes(), key=lambda p: p[sort_param_name], reverse=sort_reverse
+                get_processes(search, status),
+                key=lambda p: p.start_time,
+                reverse=True,
             )
         },
     )
@@ -59,7 +58,9 @@ def kill(request: HtmxHttpRequest):
     except Exception as e:
         logger.error(f"Error killing process: {str(e)}")
 
-    return render(request, "monitor/kill_notification.html", {"kill_request": None})
+    return render(
+        request, "monitor/kill_notification.html", {"kill_request": None}, status=500
+    )
 
 
 @login_required

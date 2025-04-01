@@ -20,7 +20,9 @@
    </ul>
 </div>
 
-<div x-data="{ showModal: false, process: null }">
+<div
+   x-data="{ showModal: false, process: null }"
+>
    {% partialdef process-table inline %}
    <div id="process-table" class="mt-8 overflow-x-auto">
       <span>
@@ -29,7 +31,11 @@
       <table class="mt-8 table table-zebra table-pin-rows">
          <thead>
          <tr>
-            <th class="w-[80px]">PID</th>
+            <th
+               class="w-[80px]"
+            >
+               PID
+            </th>
             <th>Process</th>
             <th class="w-[120px]">Status</th>
             <th class="w-[150px]">Duration</th>
@@ -48,7 +54,7 @@
             <td>{% include "monitor/includes/cpu.html" with cpu=process.cpu %}</td>
             <td>{% include "monitor/includes/memory.html" with memory=process.memory %}</td>
             <td class="text-right">
-               <button class="btn btn-sm" type="submit" @click="process = {{ process }}; showModal = true">Kill</button>
+               <button class="btn btn-sm" type="submit" @click="process = { pid: {{ process.pid }}, name: '{{ process.name }}' }; showModal = true">Kill</button>
             </td>
          </tr>
          {% endfor %}
@@ -61,12 +67,12 @@
       <div class="modal-box">
          <h2 class="text-lg font-bold">Confirm Kill</h2>
          <p class="mt-2">
-            Are you sure you want to kill <span class="font-bold" x-text="process.name"></span>
-            <sub>(PID: <span x-text="process.pid"></span>)</sub>?
+            Are you sure you want to kill <span class="font-bold" x-text="process?.name"></span>
+            <sub>(PID: <span x-text="process?.pid"></span>)</sub>?
          </p>
          <div class="mt-4 flex justify-end space-x-2">
             <button class="btn btn-outline" @click="showModal = false">Cancel</button>
-            <button class="btn btn-error" @click="alert('Killed: ' + process.name); showModal = false;">Confirm</button>
+            <button class="btn btn-error" @click="alert('Killed: ' + process?.name); showModal = false;">Confirm</button>
          </div>
       </div>
    </div>

@@ -14,6 +14,12 @@ logger = logging.getLogger(__name__)
 
 @login_required
 def index(request: HtmxHttpRequest):
+    sort_query = request.GET.get("sort", "start_time")
+    sort_reverse, sort_param_name = (
+        sort_query.startswith("-"),
+        (sort_query[1:] if sort_query.startswith("-") else sort_query),
+    )
+
     processes = []
 
     for process in psutil.process_iter(
@@ -55,4 +61,12 @@ def index(request: HtmxHttpRequest):
     if request.htmx:
         template_name += "#process-table"
 
-    return render(request, template_name, {"processes": reversed(processes)})
+    return render(
+        request,
+        template_name,
+        {
+            "processes": sorted(
+                processes, key=lambda p: p[sort_param_name], reverse=sort_reverse
+            )
+        },
+    )

@@ -1,4 +1,5 @@
 {% load static tailwind_tags %}
+{% load django_htmx %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,15 +7,24 @@
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+   {% htmx_script %}
    <script src="https://unpkg.com/alpinejs" defer></script>
    {% tailwind_css %}
 </head>
 
-<body>
-   {% block content %}
-      <section class="flex items-center justify-center h-screen">
-         <h1 class="text-5xl">Pymonx️</h1>
-      </section>
-   {% endblock content %}
+<body hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>
+   {% block head %}
+   {% endblock %}
+   <main class="py-8">
+      <div class="px-4">
+         {% block content %}
+         <section class="flex items-center justify-center h-screen">
+            <h1 class="text-5xl">Pymonx️</h1>
+         </section>
+         {% endblock content %}
+         </div>
+   </main>
+   {% block foot %}
+   {% endblock foot %}
 </body>
 </html>

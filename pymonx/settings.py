@@ -24,7 +24,7 @@ SECRET_KEY = "django-insecure-84gmysz421m#vzb=3fvy0pw^+13oiq_58tg0a_a!v7e8$e+j2!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost"]
+ALLOWED_HOSTS = ["*"]
 
 TAILWIND_APP_NAME = "theme"
 
@@ -39,8 +39,11 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_browser_reload",
     "django_extensions",
+    "django_htmx",
+    "template_partials",
     "tailwind",
     "theme",
+    "monitor",
 ]
 
 MIDDLEWARE = [
@@ -52,6 +55,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_browser_reload.middleware.BrowserReloadMiddleware",
+    "django_htmx.middleware.HtmxMiddleware",
 ]
 
 ROOT_URLCONF = "pymonx.urls"

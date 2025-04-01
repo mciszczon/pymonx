@@ -1,0 +1,13 @@
+<div class="flex items-center gap-2">
+   {% if status == "running" %}
+   <div aria-label="status" class="status status-success"></div>
+   {% elif status == "sleeping" %}
+   <div aria-label="status" class="status status-warning"></div>
+   {% elif status == "zombie" %}
+   <div aria-label="status" class="status status-error"></div>
+   {% else %}
+   <div aria-label="status" class="status"></div>
+   {% endif %}
+
+   {{ status }}
+</div>

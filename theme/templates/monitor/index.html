@@ -1,0 +1,106 @@
+{% extends "monitor/base.html" %}
+{% load monitor_extras %}
+{% load partials %}
+
+{% block content %}
+
+<div class="flex w-full items-center gap-4">
+   <ul class="flex items-center gap-2">
+      <button
+         id="refresh-button"
+         class="btn btn-outline"
+         hx-get="{% url 'monitor:index' %}"
+         hx-swap="outerHTML"
+         hx-target="#process-table"
+         hx-trigger="click from:#refresh-button, every 30s"
+      >
+         Refresh
+      </button>
+      <button class="btn btn-primary">Take Snapshot</button>
+   </ul>
+</div>
+
+<div
+   x-data="{
+      showModal: false,
+      process: null,
+
+      init() {
+        Alpine.store('process', this.process);
+      }
+   }"
+>
+   <div class="card mt-8 bg-base-200">
+      <div class="card-body px-0">
+         {% partialdef process-table inline %}
+         <div id="process-table" class="overflow-x-auto">
+            <h2 class="card-title px-4">Processes</h2>
+            <span class="text-xs px-4 text-base-content">
+               Refreshed: {% now "jS F Y H:i:s" %}
+            </span>
+            <table class="mt-8 table table-pin-rows">
+               <thead>
+               <tr>
+                  <th
+                     class="w-[80px]"
+                  >
+                     PID
+                  </th>
+                  <th>Process</th>
+                  <th class="w-[120px]">Status</th>
+                  <th class="w-[150px]">Duration</th>
+                  <th class="w-[100px]">CPU</th>
+                  <th class="w-[140px]">Memory</th>
+                  <th class="w=[80px]"></th>
+               </tr>
+               </thead>
+               <tbody>
+               {% for process in processes %}
+               <tr class="hover:bg-base-200">
+                  <th>{{ process.pid }}</th>
+                  <th>{{ process.name }}</th>
+                  <td>{% include "monitor/includes/status.html" with status=process.status %}</td>
+                  <td>{% time_since process.start_time %}</td>
+                  <td>{% include "monitor/includes/cpu.html" with cpu=process.cpu %}</td>
+                  <td>{% include "monitor/includes/memory.html" with memory=process.memory %}</td>
+                  <td class="text-right">
+                     <button class="btn btn-sm btn-primary" type="submit"
+                             @click="process = { pid: {{ process.pid }}, name: '{{ process.name }}' }; showModal = true; $store.process = process">
+                        Kill
+                     </button>
+                  </td>
+               </tr>
+               {% endfor %}
+               </tbody>
+            </table>
+         </div>
+         {% endpartialdef %}
+      </div>
+   </div>
+
+   <div class="modal" :class="{ 'modal-open': showModal }">
+      <div class="modal-box">
+         <h2 class="text-lg font-bold">Confirm Kill</h2>
+         <p class="mt-2">
+            Are you sure you want to kill <span class="font-bold" x-text="process?.name"></span>
+            <sub>(PID: <span x-text="process?.pid"></span>)</sub>?
+         </p>
+         <div class="mt-4 flex justify-end space-x-2">
+            <button class="btn btn-outline" @click="showModal = false">Cancel</button>
+            <button
+               class="btn btn-error"
+               hx-post="{% url 'monitor:kill' %}"
+               hx-vals="js:{ pid: Alpine.store('process')?.pid }"
+               hx-target="#toast-container"
+               hx-swap="innerHTML"
+               @click="showModal = false"
+            >
+               Confirm
+            </button>
+         </div>
+      </div>
+   </div>
+</div>
+
+<div id="toast-container"></div>
+{% endblock content %}

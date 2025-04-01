@@ -28,7 +28,26 @@ def time_since(timestamp: int) -> str:
     return " ".join(parts)
 
 
-def get_processes():
+def filter_process(process: psutil.Process, search: str, status: str) -> bool:
+    if process.info["pid"] == 0:
+        return False
+    if process.info["username"] == "root":
+        return False
+    if search:
+        search = search.lower()
+        if not process.info["name"].lower().startswith(search) and not str(
+            process.info["pid"]
+        ).startswith(search):
+            return False
+    if status:
+        status = status.lower()
+        if status != process.info["status"]:
+            return False
+
+    return True
+
+
+def get_processes(search: str, status: str):
     processes = []
 
     for process in psutil.process_iter(
@@ -42,9 +61,7 @@ def get_processes():
             "memory_info",
         ]
     ):
-        if process.info["pid"] == 0:
-            continue
-        if process.info["username"] == "root":
+        if not filter_process(process, search, status):
             continue
         try:
             processes.append(

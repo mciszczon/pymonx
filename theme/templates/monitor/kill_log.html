@@ -1,0 +1,31 @@
+{% extends "monitor/base.html" %}
+
+{% block content %}
+<div class="card bg-base-200">
+   <div class="card-body px-0">
+      <h2 class="card-title px-4">Kill Log</h2>
+      <table class="table table-pin-rows mt-4">
+         <thead>
+         <tr>
+            <th>PID</th>
+            <th>Name</th>
+            <th>User</th>
+            <th>Date</th>
+            <th>Success</th>
+         </tr>
+         </thead>
+         <tbody>
+         {% for kill_request in kill_requests %}
+         <tr>
+            <td>{{ kill_request.pid }}</td>
+            <td>{{ kill_request.name }}</td>
+            <td>{{ kill_request.user }}</td>
+            <td>{{ kill_request.created_at }}</td>
+            <td>{% include "monitor/includes/kill_status.html" with success=kill_request.success %}</td>
+         </tr>
+         {% endfor %}
+         </tbody>
+      </table>
+   </div>
+</div>
+{% endblock content %}

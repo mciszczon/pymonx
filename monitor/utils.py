@@ -1,3 +1,4 @@
+import psutil
 from datetime import datetime
 
 
@@ -25,3 +26,44 @@ def time_since(timestamp: int) -> str:
         parts.append(f"{seconds}s")
 
     return " ".join(parts)
+
+
+def get_processes():
+    processes = []
+
+    for process in psutil.process_iter(
+        [
+            "pid",
+            "name",
+            "username",
+            "status",
+            "create_time",
+            "cpu_percent",
+            "memory_info",
+        ]
+    ):
+        if process.info["pid"] == 0:
+            continue
+        if process.info["username"] == "root":
+            continue
+        try:
+            processes.append(
+                {
+                    "pid": process.info["pid"],
+                    "name": process.info["name"],
+                    "user": process.info["username"] or "unknown",
+                    "status": process.info["status"],
+                    "start_time": process.info["create_time"],
+                    "cpu": process.info["cpu_percent"],
+                    "memory": "{:.2f}".format(
+                        bytes_to_mib(process.info["memory_info"].rss)
+                    )
+                    if process.info["memory_info"]
+                    else None,
+                }
+            )
+
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
+
+    return processes

@@ -1,61 +1,25 @@
-import logging
-
 import psutil
-
+import logging
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+from django.views.decorators.http import require_POST, require_GET
 
-from monitor.utils import bytes_to_mib
+from monitor.models import KillRequest
+from monitor.utils import get_processes
 from pymonx.utils import HtmxHttpRequest
 
-# Get an instance of a logger
+
 logger = logging.getLogger(__name__)
 
 
 @login_required
+@require_GET
 def index(request: HtmxHttpRequest):
     sort_query = request.GET.get("sort", "start_time")
     sort_reverse, sort_param_name = (
         sort_query.startswith("-"),
         (sort_query[1:] if sort_query.startswith("-") else sort_query),
     )
-
-    processes = []
-
-    for process in psutil.process_iter(
-        [
-            "pid",
-            "name",
-            "username",
-            "status",
-            "create_time",
-            "cpu_percent",
-            "memory_info",
-        ]
-    ):
-        if process.info["pid"] == 0:
-            continue
-        if process.info["username"] == "root":
-            continue
-        try:
-            processes.append(
-                {
-                    "pid": process.info["pid"],
-                    "name": process.info["name"],
-                    "user": process.info["username"] or "unknown",
-                    "status": process.info["status"],
-                    "start_time": process.info["create_time"],
-                    "cpu": process.info["cpu_percent"],
-                    "memory": "{:.2f}".format(
-                        bytes_to_mib(process.info["memory_info"].rss)
-                    )
-                    if process.info["memory_info"]
-                    else None,
-                }
-            )
-
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            pass
 
     template_name = "monitor/index.html"
     if request.htmx:
@@ -66,7 +30,43 @@ def index(request: HtmxHttpRequest):
         template_name,
         {
             "processes": sorted(
-                processes, key=lambda p: p[sort_param_name], reverse=sort_reverse
+                get_processes(), key=lambda p: p[sort_param_name], reverse=sort_reverse
             )
         },
+    )
+
+
+@login_required
+@require_POST
+def kill(request: HtmxHttpRequest):
+    pid = int(request.POST.get("pid"))
+    try:
+        process = psutil.Process(pid)
+        process_name = process.name()
+        kill_request = KillRequest.objects.create(
+            pid=pid,
+            name=process_name,
+            user=request.user,
+        )
+        process.terminate()
+        kill_request.success = True
+        kill_request.save(update_fields=["success"])
+        return render(
+            request, "monitor/kill_notification.html", {"kill_request": kill_request}
+        )
+    except (psutil.NoSuchProcess, psutil.AccessDenied):
+        pass
+    except Exception as e:
+        logger.error(f"Error killing process: {str(e)}")
+
+    return render(request, "monitor/kill_notification.html", {"kill_request": None})
+
+
+@login_required
+@require_GET
+def kill_log(request: HtmxHttpRequest):
+    return render(
+        request,
+        "monitor/kill_log.html",
+        {"kill_requests": KillRequest.objects.all().order_by("-created_at")},
     )

@@ -12,7 +12,7 @@
    {% tailwind_css %}
 </head>
 
-<body>
+<body hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>
    {% block head %}
    {% endblock %}
    <main class="py-8">

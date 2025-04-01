@@ -24,7 +24,7 @@ SECRET_KEY = "django-insecure-84gmysz421m#vzb=3fvy0pw^+13oiq_58tg0a_a!v7e8$e+j2!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost"]
+ALLOWED_HOSTS = ["*"]
 
 TAILWIND_APP_NAME = "theme"
 

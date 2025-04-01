@@ -10,34 +10,50 @@
    <button class="btn btn-primary">Take Snapshot</button>
 </div>
 
-<table class="mt-8 table table-zebra table-pin-rows">
-   <thead>
-   <tr>
-      <th>PID</th>
-      <th>Process</th>
-      <th>User</th>
-      <th>Status</th>
-      <th>Duration</th>
-      <th>CPU %</th>
-      <th>Memory</th>
-      <th></th>
-   </tr>
-   </thead>
-   <tbody>
-   {% for process in processes %}
-   <tr class="hover:bg-base-200">
-      <th>{{ process.pid }}</th>
-      <th>{{ process.name }}</th>
-      <td>{{ process.user }}</td>
-      <td>{{ process.status }}</td>
-      <td>{% time_since process.start_time %}</td>
-      <td>{{ process.cpu|default:"N/A" }}</td>
-      <td>{{ process.memory|default:"N/A" }} MiB</td>
-      <td>
-         <button class="btn btn-sm" type="submit" data-pid="{{ process.pid }}">Kill</button>
-      </td>
-   </tr>
-   {% endfor %}
-   </tbody>
-</table>
+<div x-data="{ showModal: false, process: null }">
+   <table class="mt-8 table table-zebra table-pin-rows">
+      <thead>
+      <tr>
+         <th>PID</th>
+         <th>Process</th>
+         <th>User</th>
+         <th>Status</th>
+         <th>Duration</th>
+         <th>CPU %</th>
+         <th>Memory</th>
+         <th></th>
+      </tr>
+      </thead>
+      <tbody>
+      {% for process in processes %}
+      <tr class="hover:bg-base-200">
+         <th>{{ process.pid }}</th>
+         <th>{{ process.name }}</th>
+         <td>{{ process.user }}</td>
+         <td>{{ process.status }}</td>
+         <td>{% time_since process.start_time %}</td>
+         <td>{{ process.cpu|default:"N/A" }}</td>
+         <td>{{ process.memory|default:"N/A" }} MiB</td>
+         <td>
+            <button class="btn btn-sm" type="submit" @click="process = {{ process }}; showModal = true">Kill</button>
+         </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+   </table>
+
+   <div class="modal" :class="{ 'modal-open': showModal }">
+      <div class="modal-box">
+         <h2 class="text-lg font-bold">Confirm Kill</h2>
+         <p class="mt-2">
+            Are you sure you want to kill <span class="font-bold" x-text="process.name"></span>
+            <sub>(PID: <span x-text="process.pid"></span>)</sub>?
+         </p>
+         <div class="mt-4 flex justify-end space-x-2">
+            <button class="btn btn-outline" @click="showModal = false">Cancel</button>
+            <button class="btn btn-error" @click="alert('Killed: ' + process.name); showModal = false;">Confirm</button>
+         </div>
+      </div>
+   </div>
+</div>
 {% endblock content %}

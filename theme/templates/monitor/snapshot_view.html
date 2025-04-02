@@ -1,0 +1,22 @@
+{% extends "monitor/base.html" %}
+{% load tz %}
+
+{% block content %}
+<div class="flex items-center justify-end gap-2">
+   <a
+      class="btn btn-primary"
+      href="{% url 'monitor:snapshot_export' pk=snapshot.pk %}"
+   >
+      Export to CSV
+   </a>
+</div>
+<div class="card mt-4 bg-base-200">
+   <div class="card-body px-0">
+      <h2 class="card-title px-4">Snapshot</h2>
+      <span class="text-xs px-4 text-base-content">
+         Created: {{ generated_at }}
+      </span>
+      {% include "monitor/includes/process_table.html" with processes=processes snapshot=snapshot generated_at=generated_at %}
+   </div>
+</div>
+{% endblock content %}

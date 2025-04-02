@@ -1,7 +1,12 @@
+from dataclasses import asdict
+
 import psutil
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
+from unittest.mock import patch
+
+from monitor.models import ProcessData, Snapshot
 
 
 class TestIndexView(TestCase):
@@ -53,3 +58,96 @@ class TestKillLogView(TestCase):
         self.client.force_login(self.user)
         response = self.client.get(reverse("monitor:kill_log"))
         self.assertEqual(response.status_code, 200)
+
+
+class TestSnapshotView(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = get_user_model().objects.create_user(
+            username="testuser", password="password"
+        )
+
+    def test_view_snapshots(self):
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("monitor:snapshot_list"))
+        self.assertEqual(response.status_code, 200)
+
+    @patch("monitor.views.get_processes")
+    def test_make_snapshot(self, mock_get_processes):
+        mock_get_processes.return_value = [
+            ProcessData(
+                pid=1,
+                name="systemd",
+                user="linus",
+                status="running",
+                start_time=1,
+                cpu=1,
+                memory="1",
+            ),
+            ProcessData(
+                pid=2,
+                name="shell",
+                user="linus",
+                status="running",
+                start_time=1,
+                cpu=1,
+                memory="1",
+            ),
+        ]
+        self.client.force_login(self.user)
+        response = self.client.post(reverse("monitor:snapshot"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Snapshot.objects.count(), 1)
+        snapshot = Snapshot.objects.first()
+        self.assertEqual(snapshot.data[0]["pid"], 1)
+        self.assertEqual(snapshot.data[0]["name"], "systemd")
+        self.assertEqual(snapshot.data[1]["pid"], 2)
+        self.assertEqual(snapshot.data[1]["name"], "shell")
+
+    def test_view_snapshot_detail(self):
+        self.client.force_login(self.user)
+        snapshot = Snapshot.objects.create(
+            user=self.user,
+            data=[
+                asdict(
+                    ProcessData(
+                        pid=1,
+                        name="systemd",
+                        user="root",
+                        status="running",
+                        start_time=1,
+                        cpu=1,
+                        memory="1",
+                    )
+                )
+            ],
+        )
+        response = self.client.get(
+            reverse("monitor:snapshot_detail", args=[snapshot.pk])
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_export_snapshot(self):
+        self.client.force_login(self.user)
+        snapshot = Snapshot.objects.create(
+            user=self.user,
+            data=[
+                asdict(
+                    ProcessData(
+                        pid=1,
+                        name="systemd",
+                        user="root",
+                        status="running",
+                        start_time=1,
+                        cpu=1,
+                        memory="1",
+                    )
+                )
+            ],
+        )
+        response = self.client.get(
+            reverse("monitor:snapshot_export", args=[snapshot.pk])
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "text/csv")

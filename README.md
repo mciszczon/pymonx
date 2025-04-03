@@ -25,7 +25,13 @@ In order to use the app, you have to create a user and log in:
 ### Project Structure
 
 The project consists of two apps: `landing`, which only hold views for login and logout pages,
-and `monitor`.
+and `monitor`, which holds the main app logic and views.
+
+All the templates are located in `theme/templates`.
+
+### Testing
+
+To run all the tests, use: `python manage.py test`.
 
 ## TODO:
 

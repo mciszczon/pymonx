@@ -1,14 +1,18 @@
+{% load tz %}
+{% load humanize %}
 {% load monitor_extras %}
 
 <table class="mt-8 table table-pin-rows">
    <thead>
       <tr>
-         <th class="min-w-[80px]">PID</th>
-         <th class="w-full">Process</th>
-         <th class="min-w-[120px]">Status</th>
-         <th class="min-w-[150px]">Duration</th>
-         <th class="min-w-[100px]">CPU</th>
-         <th class="min-w-[140px]">Memory</th>
+         {% include "monitor/includes/process_th.html" with field="pid" name="PID" width="80px" %}
+         {% include "monitor/includes/process_th.html" with field="name" name="Process" width="full" %}
+         {% include "monitor/includes/process_th.html" with field="status" name="Status" width="120px" %}
+         {% with label=snapshot|yesno:"Duration,Started" %}
+            {% include "monitor/includes/process_th.html" with field="start_time" name=label width="150px" reversed=True %}
+         {% endwith %}
+         {% include "monitor/includes/process_th.html" with field="cpu" name="CPU" width="100px" %}
+         {% include "monitor/includes/process_th.html" with field="memory" name="RAM" width="140px" %}
          {% if not snapshot %}<th class="min-w=[80px]"></th>{% endif %}
       </tr>
    </thead>
@@ -18,7 +22,13 @@
       <th>{{ process.pid }}</th>
       <th>{{ process.name }}</th>
       <td>{% include "monitor/includes/status.html" with status=process.status %}</td>
-      <td>{% time_since process.start_time generated_at %}</td>
+      <td>
+         {% if not snapshot %}
+            {{ process.start_time|naturaltime }}
+         {% else %}
+            {{ process.start_time|timesince:generated_at }}
+         {% endif %}
+      </td>
       <td>{% include "monitor/includes/cpu.html" with cpu=process.cpu %}</td>
       <td>{% include "monitor/includes/memory.html" with memory=process.memory %}</td>
       {% if not snapshot %}

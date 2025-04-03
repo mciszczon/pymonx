@@ -1,10 +1,11 @@
-from datetime import datetime
 from django import template
-from monitor.utils import time_since as time_since_func
+
+from monitor.utils import bytes_to_mib
+
 
 register = template.Library()
 
 
 @register.simple_tag
-def time_since(timestamp: float | int, now: datetime = None):
-    return time_since_func(timestamp, now)
+def format_memory(memory: int) -> str:
+    return "{:.2f}".format(bytes_to_mib(memory))

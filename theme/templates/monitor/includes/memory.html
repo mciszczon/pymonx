@@ -1,3 +1,5 @@
+{% load monitor_extras %}
+
 {% if memory %}
-{{ memory }} MiB
+{% format_memory memory %} MiB
 {% endif %}

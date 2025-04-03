@@ -1,10 +1,9 @@
 {% extends "monitor/base.html" %}
 {% load partials %}
-{% load tz %}
 
 {% block content %}
 
-<div class="flex flex-col lg:flex-row w-full lg:items-center justify-between gap-4">
+<div class="flex flex-col lg:flex-row w-full lg:items-center justify-between gap-4" hx-ext="response-targets">
    {% include "monitor/includes/filters.html" %}
    <ul class="flex items-center gap-2 order-first lg:order-last">
       <li>
@@ -12,10 +11,14 @@
             id="refresh-button"
             class="btn btn-outline"
             hx-get="{% url 'monitor:index' %}"
-            hx-vals="js:{ search: Alpine.store('filters').search, status: Alpine.store('filters').status }"
+            hx-vals="js:{
+               search: Alpine.store('filters').search,
+               status: Alpine.store('filters').status,
+               sort: Alpine.store('sorting').value
+            }"
             hx-swap="outerHTML"
             hx-target="#process-table"
-            hx-trigger="click from:#refresh-button, every 30s"
+            hx-trigger="click from:#refresh-button, refresh from:body, every 30s"
          >
             Refresh
          </button>
@@ -25,6 +28,7 @@
             class="btn btn-primary"
             hx-post="{% url 'monitor:snapshot' %}"
             hx-target="#toast-container"
+            hx-target-error="#toast-container"
             hx-swap="innerHTML"
          >
             Take Snapshot
@@ -81,4 +85,6 @@
 </div>
 
 <div id="toast-container"></div>
+
+{% include "monitor/includes/sorting_app.html" %}
 {% endblock content %}

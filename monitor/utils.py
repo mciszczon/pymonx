@@ -1,6 +1,7 @@
 import psutil
 from datetime import datetime
 from dacite import from_dict
+from django.http import HttpRequest
 
 from monitor.models import ProcessData
 
@@ -83,3 +84,19 @@ def get_processes(search: str, status: str):
             pass
 
     return processes
+
+
+SORTING_ALLOWED_FIELDS = ("pid", "name", "status", "cpu", "memory", "start_time")
+
+
+def parse_sort_param(request: HttpRequest) -> tuple[str, bool]:
+    sort_param = request.GET.get("sort", "pid")
+
+    reverse_order = sort_param.startswith("-")
+    field = sort_param.lstrip("-")
+
+    if field not in SORTING_ALLOWED_FIELDS:
+        field = "pid"
+        reverse_order = False
+
+    return field, reverse_order

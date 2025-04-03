@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.views.decorators.http import require_POST, require_GET
 
 from monitor.models import KillRequest
-from monitor.utils import get_processes
+from monitor.utils import get_processes, parse_sort_param
 from pymonx.utils import HtmxHttpRequest
 
 
@@ -22,14 +22,16 @@ def index(request: HtmxHttpRequest):
     if request.htmx:
         template_name += "#process-table"
 
+    sort_field, reverse_sort = parse_sort_param(request)
+
     return render(
         request,
         template_name,
         {
             "processes": sorted(
                 get_processes(search, status),
-                key=lambda p: p.start_time,
-                reverse=True,
+                key=lambda p: p[sort_field],
+                reverse=reverse_sort,
             )
         },
     )

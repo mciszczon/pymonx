@@ -1,0 +1,7 @@
+<th class="min-w-[{{ width }}]" @click="changeSorting('{{ field }}', $dispatch)" role="button">
+   {{ name }}
+   <span
+      x-show="sorting('{{ field }}').active"
+      x-text="sorting('{{ field }}').reversed ? '{% if reversed %}↑{% else %}↓{% endif %}' : '{% if reversed %}↓{% else %}↑{% endif %}'"
+   ></span>
+</th>

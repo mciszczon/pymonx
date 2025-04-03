@@ -30,7 +30,7 @@ def index(request: HtmxHttpRequest):
         {
             "processes": sorted(
                 get_processes(search, status),
-                key=lambda p: p[sort_field],
+                key=lambda p: getattr(p, sort_field) or 0,
                 reverse=reverse_sort,
             )
         },

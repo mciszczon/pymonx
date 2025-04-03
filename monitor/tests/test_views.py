@@ -6,6 +6,8 @@ from django.test import TestCase
 from django.urls import reverse
 from unittest.mock import patch
 
+from django.utils import timezone
+
 from monitor.models import ProcessData, Snapshot
 
 
@@ -70,6 +72,9 @@ class TestSnapshotView(TestCase):
 
     def test_view_snapshots(self):
         self.client.force_login(self.user)
+        Snapshot.objects.create(
+            user=self.user, data=[{}], cpu_usage=56.5, memory_usage=67.95
+        )
         response = self.client.get(reverse("monitor:snapshot_list"))
         self.assertEqual(response.status_code, 200)
 
@@ -81,18 +86,18 @@ class TestSnapshotView(TestCase):
                 name="systemd",
                 user="linus",
                 status="running",
-                start_time=1,
-                cpu=1,
-                memory="1",
+                start_time=timezone.now(),
+                cpu=15.2,
+                memory=1024,
             ),
             ProcessData(
                 pid=2,
                 name="shell",
                 user="linus",
                 status="running",
-                start_time=1,
-                cpu=1,
-                memory="1",
+                start_time=timezone.now(),
+                cpu=4.2,
+                memory=5723651259,
             ),
         ]
         self.client.force_login(self.user)
@@ -116,12 +121,14 @@ class TestSnapshotView(TestCase):
                         name="systemd",
                         user="root",
                         status="running",
-                        start_time=1,
-                        cpu=1,
-                        memory="1",
+                        start_time=timezone.now(),
+                        cpu=4.2,
+                        memory=5723651259,
                     )
                 )
             ],
+            cpu_usage=26.4,
+            memory_usage=67.9,
         )
         response = self.client.get(
             reverse("monitor:snapshot_detail", args=[snapshot.pk])
@@ -139,12 +146,14 @@ class TestSnapshotView(TestCase):
                         name="systemd",
                         user="root",
                         status="running",
-                        start_time=1,
-                        cpu=1,
-                        memory="1",
+                        start_time=timezone.now(),
+                        cpu=4.2,
+                        memory=5723651259,
                     )
                 )
             ],
+            cpu_usage=26.4,
+            memory_usage=67.9,
         )
         response = self.client.get(
             reverse("monitor:snapshot_export", args=[snapshot.pk])

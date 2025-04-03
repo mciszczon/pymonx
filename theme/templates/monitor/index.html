@@ -3,7 +3,7 @@
 
 {% block content %}
 
-<div class="flex flex-col lg:flex-row w-full lg:items-center justify-between gap-4">
+<div class="flex flex-col lg:flex-row w-full lg:items-center justify-between gap-4" hx-ext="response-targets">
    {% include "monitor/includes/filters.html" %}
    <ul class="flex items-center gap-2 order-first lg:order-last">
       <li>
@@ -28,6 +28,7 @@
             class="btn btn-primary"
             hx-post="{% url 'monitor:snapshot' %}"
             hx-target="#toast-container"
+            hx-target-error="#toast-container"
             hx-swap="innerHTML"
          >
             Take Snapshot

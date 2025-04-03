@@ -1,17 +1,22 @@
 import csv
+from datetime import datetime
 
 import psutil
 import logging
+import dacite
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_POST, require_GET
 from django.utils import timezone
 from dataclasses import asdict
-from dacite import from_dict
 
 from monitor.models import KillRequest, Snapshot, ProcessData
-from monitor.utils import get_processes, parse_sort_param
+from monitor.utils import (
+    get_processes,
+    parse_sort_param,
+    get_resources_usage,
+)
 from pymonx.utils import HtmxHttpRequest
 
 
@@ -86,9 +91,13 @@ def kill_log(request: HtmxHttpRequest):
 @require_POST
 def snapshot(request: HtmxHttpRequest):
     try:
-        processes = get_processes(search="", status="")
+        processes = get_processes(search="", status="", cast_datetime=True)
+        cpu_usage, memory_usage = get_resources_usage()
         snap = Snapshot.objects.create(
-            user=request.user, data=[asdict(process) for process in processes]
+            user=request.user,
+            data=[asdict(process) for process in processes],
+            cpu_usage=cpu_usage,
+            memory_usage=memory_usage,
         )
         return render(request, "monitor/snapshot_notification.html", {"snapshot": snap})
     except Exception as e:
@@ -115,7 +124,14 @@ def snapshot_list(request: HtmxHttpRequest):
 @require_GET
 def snapshot_detail(request: HtmxHttpRequest, pk: int = None):
     snap = get_object_or_404(Snapshot, pk=pk)
-    processes = [from_dict(ProcessData, process) for process in snap.data]
+    processes = [
+        dacite.from_dict(
+            ProcessData,
+            process,
+            config=dacite.Config(type_hooks={datetime: datetime.fromisoformat}),
+        )
+        for process in snap.data
+    ]
     return render(
         request,
         "monitor/snapshot_view.html",
@@ -127,7 +143,14 @@ def snapshot_detail(request: HtmxHttpRequest, pk: int = None):
 @require_GET
 def export_snapshot(request: HtmxHttpRequest, pk: int = None):
     snap = get_object_or_404(Snapshot, pk=pk)
-    processes = [from_dict(ProcessData, process) for process in snap.data]
+    processes = [
+        dacite.from_dict(
+            ProcessData,
+            process,
+            config=dacite.Config(type_hooks={datetime: datetime.fromisoformat}),
+        )
+        for process in snap.data
+    ]
     response = HttpResponse(content_type="text/csv")
     file_name = f"snapshot-{snap.created_at.strftime('%Y-%m-%d-%H-%M-%S')}.csv"
     response["Content-Disposition"] = f"attachment; filename={file_name}"

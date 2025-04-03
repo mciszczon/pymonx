@@ -1,40 +1,19 @@
-from datetime import timedelta
-from django.utils import timezone
-
 from django.test import TestCase, RequestFactory
-from freezegun import freeze_time
 
 from monitor.models import ProcessData
 from monitor.utils import (
-    time_since,
     filter_process,
     parse_sort_param,
     SORTING_ALLOWED_FIELDS,
+    get_resources_usage,
 )
 
 
-class TestTimeSince(TestCase):
-    @freeze_time("2025-02-15T12:00:00+02:00")
-    def test_time_since(self):
-        minute_ago = timezone.now() - timedelta(minutes=1)
-        result = time_since(minute_ago.timestamp())
-        self.assertEqual(result, "1m")
-
-        six_hours_ago = timezone.now() - timedelta(hours=6, minutes=12, seconds=4)
-        result = time_since(six_hours_ago.timestamp())
-        self.assertEqual(result, "6h 12m 4s")
-
-        now = timezone.now()
-        result = time_since(now.timestamp())
-        self.assertEqual(result, "0s")
-
-        seven_days_ago = timezone.now() - timedelta(days=7, hours=4, seconds=4)
-        result = time_since(seven_days_ago.timestamp())
-        self.assertEqual(result, "7d 4h 4s")
-
-        years_ago = timezone.now() - timedelta(days=641)
-        result = time_since(years_ago.timestamp())
-        self.assertEqual(result, "641d")
+class TestGetResourcesUsage(TestCase):
+    def test_get_resources_usage(self):
+        cpu_usage, memory_usage = get_resources_usage()
+        self.assertGreater(cpu_usage, 0)
+        self.assertGreater(memory_usage, 0)
 
 
 class TestFilterProcess(TestCase):

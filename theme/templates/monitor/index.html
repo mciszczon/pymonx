@@ -1,6 +1,6 @@
 {% extends "monitor/base.html" %}
-{% load monitor_extras %}
 {% load partials %}
+{% load tz %}
 
 {% block content %}
 
@@ -21,7 +21,14 @@
          </button>
       </li>
       <li>
-         <button class="btn btn-primary">Take Snapshot</button>
+         <button
+            class="btn btn-primary"
+            hx-post="{% url 'monitor:snapshot' %}"
+            hx-target="#toast-container"
+            hx-swap="innerHTML"
+         >
+            Take Snapshot
+         </button>
       </li>
    </ul>
 </div>
@@ -43,39 +50,7 @@
             <span class="text-xs px-4 text-base-content">
                Refreshed: {% now "jS F Y H:i:s" %}
             </span>
-            <table class="mt-8 table table-pin-rows">
-               <thead>
-                  <tr>
-                     <th class="min-w-[80px]">PID</th>
-                     <th class="w-full">Process</th>
-                     <th class="min-w-[120px]">Status</th>
-                     <th class="min-w-[150px]">Duration</th>
-                     <th class="min-w-[100px]">CPU</th>
-                     <th class="min-w-[140px]">Memory</th>
-                     <th class="min-w=[80px]"></th>
-                  </tr>
-               </thead>
-               <tbody>
-               {% for process in processes %}
-               <tr class="hover:bg-base-200">
-                  <th>{{ process.pid }}</th>
-                  <th>{{ process.name }}</th>
-                  <td>{% include "monitor/includes/status.html" with status=process.status %}</td>
-                  <td>{% time_since process.start_time %}</td>
-                  <td>{% include "monitor/includes/cpu.html" with cpu=process.cpu %}</td>
-                  <td>{% include "monitor/includes/memory.html" with memory=process.memory %}</td>
-                  <td class="text-right">
-                     <button
-                        class="btn btn-sm btn-primary" type="submit"
-                        @click="showModal = true; $store.process = { pid: {{ process.pid }}, name: '{{ process.name }}' }"
-                     >
-                        Kill
-                     </button>
-                  </td>
-               </tr>
-               {% endfor %}
-               </tbody>
-            </table>
+            {% include "monitor/includes/process_table.html" with processes=processes %}
          </div>
          {% endpartialdef %}
       </div>

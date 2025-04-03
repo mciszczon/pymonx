@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-   <title>Django Tailwind</title>
+   <title>Pymonx</title>
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <meta http-equiv="X-UA-Compatible" content="ie=edge">
@@ -12,19 +12,19 @@
    {% tailwind_css %}
 </head>
 
-<body hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>
+<body class="flex flex-col min-h-screen" hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>
    {% block head %}
    {% endblock %}
-   <main class="py-8">
+   <main class="py-8 flex-1">
       <div class="px-4">
          {% block content %}
          <section class="flex items-center justify-center h-screen">
             <h1 class="text-5xl">Pymonx️</h1>
          </section>
-         {% endblock content %}
+         {% endblock %}
          </div>
    </main>
    {% block foot %}
-   {% endblock foot %}
+   {% endblock %}
 </body>
 </html>

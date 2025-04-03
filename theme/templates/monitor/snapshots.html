@@ -6,41 +6,47 @@
     <div class="col-span-1 card bg-base-200">
         <div class="card-body px-0">
             <h2 class="card-title px-4">Snapshots</h2>
-            <table class="table table-pin-rows mt-4">
-                <thead>
-                <tr>
-                    <th class="min-w-[30px]">ID</th>
-                    <th>Created</th>
-                    <th>User</th>
-                    <th class="min-w-[100px]"></th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for snapshot in snapshots %}
-                <tr>
-                    <td>{{ snapshot.pk }}</td>
-                    <td>{{ snapshot.created_at }}</td>
-                    <td>{{ snapshot.user }}</td>
-                    <td class="text-right">
-                        <a class="btn btn-sm btn-primary" href="{% url 'monitor:snapshot_detail' pk=snapshot.pk %}">
-                            View
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+            {% if snapshots %}
+                <table class="table table-pin-rows mt-4">
+                    <thead>
+                    <tr>
+                        <th class="min-w-[30px]">ID</th>
+                        <th>Created</th>
+                        <th>User</th>
+                        <th class="min-w-[100px]"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for snapshot in snapshots %}
+                    <tr>
+                        <td>{{ snapshot.pk }}</td>
+                        <td>{{ snapshot.created_at }}</td>
+                        <td>{{ snapshot.user }}</td>
+                        <td class="text-right">
+                            <a class="btn btn-sm btn-primary" href="{% url 'monitor:snapshot_detail' pk=snapshot.pk %}">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-base-content opacity-70 px-4">No snapshots found.</p>
+            {% endif %}
         </div>
     </div>
 
-    {% if snapshots %}
     <div class="col-span-1 card bg-base-200">
         <div class="card-body">
             <h2 class="card-title">Resources usage</h2>
-            {% include "monitor/includes/usage_chart.html" with chart_data=chart_data %}
+            {% if snapshots %}
+                {% include "monitor/includes/usage_chart.html" with chart_data=chart_data %}
+            {% else %}
+                <p class="text-base-content opacity-70">Chart will be available once you create a snapshot.</p>
+            {% endif %}
         </div>
     </div>
-    {% endif %}
 </div>
 
 {% endblock content %}

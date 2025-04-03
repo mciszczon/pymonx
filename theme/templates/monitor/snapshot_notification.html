@@ -1,7 +1,7 @@
 <div x-init="setTimeout(() => $el.remove(), 3000)">
    {% if snapshot %}
    <div class="toast">
-     <a class="alert alert-success" href="{% url 'monitor:index' %}">
+     <a class="alert alert-success" href="{% url 'monitor:snapshot_detail' pk=snapshot.pk %}">
        <span>Snapshot created, click to view it</span>
      </a>
    </div>

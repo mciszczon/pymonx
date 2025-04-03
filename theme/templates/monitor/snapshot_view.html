@@ -14,7 +14,7 @@
    <div class="card-body px-0">
       <h2 class="card-title px-4">Snapshot</h2>
       <span class="text-xs px-4 text-base-content">
-         Created: {{ generated_at }}
+         Created on {{ generated_at }} by {{ snapshot.user }}
       </span>
       {% include "monitor/includes/process_table.html" with processes=processes snapshot=snapshot generated_at=generated_at %}
    </div>

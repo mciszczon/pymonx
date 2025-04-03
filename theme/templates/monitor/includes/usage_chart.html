@@ -1,0 +1,55 @@
+<div class="relative w-full h-0 pb-[56.25%]">
+   <canvas id="usageChart" class="absolute w-full h-full top-0 left-0"></canvas>
+</div>
+
+{{chart_data|json_script:"chart-data"}}
+
+<script defer>
+   const entries = JSON.parse(document.getElementById('chart-data').textContent);
+   const ctx = document.getElementById('usageChart');
+
+   new Chart(ctx, {
+      type: 'line',
+      data: {
+         datasets: [
+            {
+               label: 'CPU Usage',
+               data: entries.map(entry => ({x: entry.datetime, y: entry.cpu_usage})),
+               borderColor: 'rgba(255, 99, 132, 1)',
+               backgroundColor: 'rgba(255, 99, 132, 0.2)',
+               fill: false,
+               tension: 0.1,
+            },
+            {
+               label: 'Memory Usage',
+               data: entries.map(entry => ({x: entry.datetime, y: entry.memory_usage})),
+               borderColor: 'rgba(54, 162, 235, 1)',
+               backgroundColor: 'rgba(54, 162, 235, 0.2)',
+               fill: false,
+               tension: 0.1,
+            }
+         ]
+      },
+      options: {
+         responsive: true,
+         scales: {
+            x: {
+               type: 'time',
+               title: {
+                  display: true,
+                  text: 'Time'
+               }
+            },
+            y: {
+               suggestedMax: 100,
+               display: true,
+               title: {
+                  display: true,
+                  text: 'Usage (%)'
+               }
+            }
+         },
+         spanGaps: true,
+      },
+   });
+</script>

@@ -113,10 +113,21 @@ def snapshot(request: HtmxHttpRequest):
 @login_required
 @require_GET
 def snapshot_list(request: HtmxHttpRequest):
+    snapshots = Snapshot.objects.all().order_by("-created_at")
     return render(
         request,
         "monitor/snapshots.html",
-        {"snapshots": Snapshot.objects.all().order_by("-created_at")},
+        {
+            "snapshots": snapshots,
+            "chart_data": [
+                {
+                    "datetime": snap.created_at.isoformat(),
+                    "cpu_usage": snap.cpu_usage,
+                    "memory_usage": snap.memory_usage,
+                }
+                for snap in snapshots
+            ],
+        },
     )
 
 

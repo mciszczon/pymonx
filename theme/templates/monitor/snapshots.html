@@ -1,33 +1,46 @@
 {% extends "monitor/base.html" %}
 
 {% block content %}
-<div class="card bg-base-200">
-   <div class="card-body px-0">
-      <h2 class="card-title px-4">Snapshots</h2>
-      <table class="table table-pin-rows mt-4">
-         <thead>
-         <tr>
-            <th class="min-w-[30px]">ID</th>
-            <th>Created</th>
-            <th>User</th>
-            <th class="min-w-[100px]"></th>
-         </tr>
-         </thead>
-         <tbody>
-         {% for snapshot in snapshots %}
-         <tr>
-            <td>{{ snapshot.pk }}</td>
-            <td>{{ snapshot.created_at }}</td>
-            <td>{{ snapshot.user }}</td>
-            <td class="text-right">
-               <a class="btn btn-sm btn-primary" href="{% url 'monitor:snapshot_detail' pk=snapshot.pk %}">
-                  View
-               </a>
-            </td>
-         </tr>
-         {% endfor %}
-         </tbody>
-      </table>
-   </div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 items-start gap-4">
+    <div class="col-span-1 card bg-base-200">
+        <div class="card-body px-0">
+            <h2 class="card-title px-4">Snapshots</h2>
+            <table class="table table-pin-rows mt-4">
+                <thead>
+                <tr>
+                    <th class="min-w-[30px]">ID</th>
+                    <th>Created</th>
+                    <th>User</th>
+                    <th class="min-w-[100px]"></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for snapshot in snapshots %}
+                <tr>
+                    <td>{{ snapshot.pk }}</td>
+                    <td>{{ snapshot.created_at }}</td>
+                    <td>{{ snapshot.user }}</td>
+                    <td class="text-right">
+                        <a class="btn btn-sm btn-primary" href="{% url 'monitor:snapshot_detail' pk=snapshot.pk %}">
+                            View
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if snapshots %}
+    <div class="col-span-1 card bg-base-200">
+        <div class="card-body">
+            <h2 class="card-title">Resources usage</h2>
+            {% include "monitor/includes/usage_chart.html" with chart_data=chart_data %}
+        </div>
+    </div>
+    {% endif %}
 </div>
+
 {% endblock content %}

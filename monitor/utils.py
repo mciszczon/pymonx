@@ -1,5 +1,6 @@
 import psutil
 from datetime import datetime
+from django.utils import timezone
 from dacite import from_dict
 from django.http import HttpRequest
 
@@ -10,9 +11,13 @@ def bytes_to_mib(bytes_size: int) -> float:
     return bytes_size / (1024**2)
 
 
-def time_since(timestamp: float) -> str:
-    now = datetime.now()
-    delta = now - datetime.fromtimestamp(timestamp)
+def time_since(timestamp: float | int, now: datetime = None) -> str:
+    if now is None:
+        now = timezone.now()
+
+    delta = now - timezone.make_aware(
+        datetime.fromtimestamp(timestamp), timezone=timezone.get_fixed_timezone(0)
+    )
 
     days = delta.days
     seconds = delta.seconds

@@ -11,8 +11,8 @@ class ProcessData:
     user: str
     status: str
     start_time: float
-    cpu: float | None
-    memory: str | None
+    cpu: float | None  # percentage value as float, i.e. 0.0–100.0
+    memory: str | None  # FIXME: Change to int and store in bytes
 
 
 class KillRequest(models.Model):
@@ -21,3 +21,9 @@ class KillRequest(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     success = models.BooleanField(default=False)
+
+
+class Snapshot(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    data = models.JSONField(default=list)  # List of ProcessData-interface dicts

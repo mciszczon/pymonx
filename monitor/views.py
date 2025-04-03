@@ -155,13 +155,12 @@ def export_snapshot(request: HtmxHttpRequest, pk: int = None):
     file_name = f"snapshot-{snap.created_at.strftime('%Y-%m-%d-%H-%M-%S')}.csv"
     response["Content-Disposition"] = f"attachment; filename={file_name}"
     writer = csv.writer(response)
-    writer.writerow(["PID", "Name", "User", "Status", "Start Time", "CPU", "Memory"])
+    writer.writerow(["PID", "Name", "Status", "Start Time", "CPU", "Memory"])
     for process in processes:
         writer.writerow(
             [
                 process.pid,
                 process.name,
-                process.user,
                 process.status,
                 process.start_time,
                 process.cpu,

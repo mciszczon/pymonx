@@ -22,8 +22,16 @@ class KillRequest(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     success = models.BooleanField(default=False)
 
+    def __str__(self):
+        return f"{'✅' if self.success else '❌'} {self.name} (PID: {self.pid}) by {self.user} on {self.created_at.strftime('%Y-%m-%d at %H:%M:%S')}"
+
 
 class Snapshot(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     data = models.JSONField(default=list)  # List of ProcessData-interface dicts
+    cpu_usage = models.FloatField()  # Percentage value of total CPU usage
+    memory_usage = models.FloatField()  # Percentage value of total memory usage
+
+    def __str__(self):
+        return f"by {self.user} on {self.created_at.strftime('%Y-%m-%d at %H:%M:%S')}"

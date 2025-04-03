@@ -1,7 +1,7 @@
-<th class="min-w-[{{ width }}]" @click="changeSorting('{{ field }}', $dispatch)" role="button">
+<th class="min-w-[{{ width }}]" @click="$store.sorting.changeSorting('{{ field }}', $dispatch)" role="button">
    {{ name }}
    <span
-      x-show="sorting('{{ field }}').active"
-      x-text="sorting('{{ field }}').reversed ? '{% if reversed %}↑{% else %}↓{% endif %}' : '{% if reversed %}↓{% else %}↑{% endif %}'"
+      x-show="$store.sorting.sorting('{{ field }}').active"
+      x-text="$store.sorting.sorting('{{ field }}').reversed ? '{% if reversed %}↑{% else %}↓{% endif %}' : '{% if reversed %}↓{% else %}↑{% endif %}'"
    ></span>
 </th>

@@ -14,7 +14,7 @@
             hx-vals="js:{
                search: Alpine.store('filters').search,
                status: Alpine.store('filters').status,
-               sort: Alpine.store('sorting')
+               sort: Alpine.store('sorting').value
             }"
             hx-swap="outerHTML"
             hx-target="#process-table"
@@ -43,7 +43,6 @@
 
       init() {
         Alpine.store('process', {});
-        Alpine.store('sorting', 'pid');
       }
    }"
 >
@@ -87,18 +86,5 @@
 
 <div id="toast-container"></div>
 
-<script>
-   const changeSorting = (sorting, $dispatch) => {
-      const currentSorting = Alpine.store('sorting');
-      if (currentSorting === sorting) sorting = `-${sorting}`;
-      Alpine.store('sorting', sorting);
-      $dispatch('refresh');
-   }
-
-   const sorting = (name) => {
-      const currentSorting = Alpine.store('sorting');
-      const reversed = currentSorting.startsWith('-')
-      return { active: currentSorting.slice(reversed ? 1 : 0) === name, reversed };
-   }
-</script>
+{% include "monitor/includes/sorting_app.html" %}
 {% endblock content %}

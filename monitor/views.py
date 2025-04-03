@@ -132,6 +132,7 @@ def snapshot_detail(request: HtmxHttpRequest, pk: int = None):
         )
         for process in snap.data
     ]
+
     return render(
         request,
         "monitor/snapshot_view.html",

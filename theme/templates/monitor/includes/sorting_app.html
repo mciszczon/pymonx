@@ -1,0 +1,16 @@
+<script>
+   document.addEventListener('alpine:init', () => {
+      Alpine.store('sorting', {
+         value: 'pid',
+         changeSorting(sorting, $dispatch) {
+            if (this.value === sorting) sorting = `-${sorting}`;
+            this.value = sorting;
+            $dispatch('refresh');
+         },
+         sorting(name) {
+            const reversed = this.value.startsWith('-')
+            return { active: this.value.slice(reversed ? 1 : 0) === name, reversed };
+         }
+      });
+   });
+</script>

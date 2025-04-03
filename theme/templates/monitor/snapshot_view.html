@@ -16,7 +16,9 @@
       <span class="text-xs px-4 text-base-content">
          Created on {{ generated_at }} by {{ snapshot.user }}
       </span>
-      {% include "monitor/includes/process_table.html" with processes=processes snapshot=snapshot generated_at=generated_at %}
+      <div class="overflow-x-auto">
+         {% include "monitor/includes/process_table.html" with processes=processes snapshot=snapshot generated_at=generated_at %}
+      </div>
    </div>
 </div>
 {% endblock content %}

@@ -37,3 +37,4 @@ To run all the tests, use: `python manage.py test`.
 
 - E2E tests using Playwright
 - Sorting in Snapshot view
+- Properly display error notifications (HTMX doesn't swap HTML for error HTTP codes)
